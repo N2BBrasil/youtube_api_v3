@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_api_v3/youtube_api_v3.dart';
 
-
-
 var apiKey = '';
 
 void main() => runApp(MyApp());
@@ -29,15 +27,8 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class Video{
-  final String thumbnail;
-
-  Video(this.thumbnail);
-}
-
 class _MyHomePageState extends State<MyHomePage> {
-
-  List<PlayListItem> videos = new List();
+  List<Video> videos = new List();
   PlayListItemListResponse currentPage;
 
   @override
@@ -46,32 +37,28 @@ class _MyHomePageState extends State<MyHomePage> {
     getMusic();
   }
 
-  setVideos(videos){
+  setVideos(videos) {
     setState(() {
       this.videos = videos;
     });
   }
 
-  Future<List<PlayListItem>> getMusic() async{
+  Future<List<PlayListItem>> getMusic() async {
     YoutubeAPIv3 api = new YoutubeAPIv3(apiKey);
 
-    PlayListItemListResponse playlist = await api.playListItems(playlistId : 'PLTfigAbxBUNpoZ1OspADCabQ5meRDmPlP',maxResults:5,part:Parts.snippet);
-    var videos = playlist.items.map((video){
-        return video;
-      }).toList();
-    currentPage = playlist;
-    this.videos.addAll(videos);
-    setVideos(this.videos);
-  }
+    final playlistT = await api.playListItems(
+        playlistId: 'PLhmELlzojXqhS9dsOUrT2AIblgKh-GGzE', maxResults: 2);
+    print(playlistT);
 
-  Future<List<PlayListItem>> nextPage() async{
-    PlayListItemListResponse playlist = await currentPage.nextPage();
-    var videos = playlist.items.map((video){
-        return video;
-      }).toList();
+    PlayListItemListResponse playlist = await api.playListItems(
+        playlistId: 'PLTfigAbxBUNpoZ1OspADCabQ5meRDmPlP', maxResults: 5);
+    var videos = playlist.items.map((video) {
+      return video;
+    });
     currentPage = playlist;
     this.videos.addAll(videos);
     setVideos(this.videos);
+    return null;
   }
 
   @override
@@ -81,34 +68,30 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: ListView.builder(
-              itemCount: videos.length + 1,
-              itemBuilder: (BuildContext context,int index){
-                if(videos.length == index){
-                  return RaisedButton(
-                    onPressed: (){
-                      nextPage();
-                    },
-                    color: Theme.of(context).primaryColor,
-                    child: Text('Load More',style: TextStyle(color: Colors.white),),
-                  );
-                }
-                var video = videos[index];
-                return Card(
-                  margin: EdgeInsets.all(20),
-                  child: Column(
-                    children:<Widget>[
-                      Text(video.snippet.title),
-                        Image(
-                          fit: BoxFit.fitWidth,
-                          image:NetworkImage(video.snippet.thumbnails.medium.url)
-                        ),
-                        ]
-                  )
-                );
-              },
-            )
-      ),
+          child: ListView.builder(
+        itemCount: videos.length + 1,
+        itemBuilder: (BuildContext context, int index) {
+          if (videos.length == index) {
+            return RaisedButton(
+              onPressed: () {},
+              color: Theme.of(context).primaryColor,
+              child: Text(
+                'Load More',
+                style: TextStyle(color: Colors.white),
+              ),
+            );
+          }
+          var video = videos[index];
+          return Card(
+              margin: EdgeInsets.all(20),
+              child: Column(children: <Widget>[
+                Text(video.snippet.title),
+                Image(
+                    fit: BoxFit.fitWidth,
+                    image: NetworkImage(video.snippet.thumbnails.medium.url)),
+              ]));
+        },
+      )),
     );
   }
 }
